@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-if (process.env.NODE_ENV === "production") {
-  // Prevent running in production
-  throw new Error("Awaken services is a dev-only route!");
-}
+// if (process.env.NODE_ENV === "production") {
+//   // Prevent running in production
+//   throw new Error("Awaken services is a dev-only route!");
+// }
 
 // List of service URLs
 const SERVICES = [
