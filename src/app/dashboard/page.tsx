@@ -40,6 +40,8 @@ export default function Dashboard() {
   const [totalPages, setTotalPages] = useState(1);
   const [loadingDev, setLoadingDev] = useState(false);
   const [appToken, setAppToken] = useState<string>("");
+  const [loadingClear, setLoadingClear] = useState(false);
+  const [refreshCounter, setRefreshCounter] = useState(1);
 
   const startScrapperAuth = async () => {
     if (!user) return alert("No user found");
@@ -65,6 +67,8 @@ export default function Dashboard() {
       }
 
       setAppToken(data?.app_token || "");
+      localStorage.setItem("appToken", data.app_token); // store app token
+      localStorage.setItem("userToken", user.token); // store user token
       continueScrapping(data?.app_token);
     } catch (e) {
       alert("Error: " + String(e));
@@ -129,16 +133,45 @@ export default function Dashboard() {
     }
   };
 
+  const clearDBandCache = async () => {
+    setLoadingClear(true);
+    try {
+      const res = await fetch("/api/clear_persisted_data");
+      const data = await res.json();
+      alert(data?.message);
+      console.log(data);
+    } catch (e) {
+      alert("Error removing data: " + String(e));
+    } finally {
+      setLoadingClear(false);
+    }
+  };
+
   useEffect(() => {
-    const token = searchParams.get("token");
-    const name = searchParams.get("name") || "";
-    const provider = searchParams.get("provider") || "facebook";
+    const token =
+      searchParams.get("token") || localStorage.getItem("userToken");
+    const appTokenStored = localStorage.getItem("appToken");
+    const name =
+      searchParams.get("name") || localStorage.getItem("userName") || "";
+    const provider =
+      searchParams.get("provider") ||
+      localStorage.getItem("userProvider") ||
+      "facebook";
 
     if (token) {
       setUser({ token, name, provider });
-      getScrapedPosts(); // fetch first page by default
+
+      if (appTokenStored) {
+        setAppToken(appTokenStored);
+        // Fetch posts immediately if app token exists
+        getScrapedPosts();
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, refreshCounter]);
+
+  useEffect(() => {
+    setRefreshCounter((prev) => prev + 1);
+  }, []);
 
   if (!user)
     return (
@@ -206,6 +239,15 @@ export default function Dashboard() {
                 {loadingDev ? "Awakening..." : "Awaken All Services (Dev Only)"}
               </Button>
             )}
+            {process.env.NODE_ENV !== "production" && (
+              <Button
+                onClick={clearDBandCache}
+                className="flex-1 py-4 text-sm font-medium shadow-sm bg-yellow-700 hover:bg-yellow-800 text-white"
+                disabled={loadingClear}
+              >
+                {loadingClear ? "Clearing..." : "Clear Data (Dev Only)"}
+              </Button>
+            )}
             <Button
               onClick={() => getScrapedPosts(page)}
               className="flex-1 py-5 text-base font-medium shadow-sm bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
@@ -227,6 +269,11 @@ export default function Dashboard() {
             <Button
               onClick={() => {
                 setUser(null);
+                setAppToken("");
+                localStorage.removeItem("appToken");
+                localStorage.removeItem("userToken");
+                localStorage.removeItem("userName");
+                localStorage.removeItem("userProvider");
                 window.location.href = "/";
               }}
               variant="destructive"
