@@ -61,7 +61,7 @@ export interface ScrapedPost {
   schema_version: number;
   tags: string[];
   updated_at: string;
-  url: string;
+  url: string | null;
 }
 
 export interface ScrapedPostsResponse {
@@ -87,28 +87,46 @@ export async function POST(req: NextRequest) {
     });
 
     if (!res.ok) {
-      const text = await res.text();
       return NextResponse.json(
-        { error: "Failed to fetch posts", details: text },
+        { error: "Failed to fetch posts", details: await res.text() },
         { status: res.status }
       );
     }
 
     const data: ScrapedPostsResponse = await res.json();
 
-    // Pagination logic
+    // -----------------------------------------
+    // 🔥 NORMALIZE TWITTER POSTS (URL = NULL)
+    // -----------------------------------------
+    const normalizedPosts = data.posts.map((post) => {
+      // Twitter often gives url: null → we generate a standard Twitter URL
+      const fallbackUrl =
+        post.provider === "twitter"
+          ? `https://twitter.com/${post.author.raw.social_id}/status/${post.post_id}`
+          : post.url ?? "";
+
+      return {
+        ...post,
+        url: post.url || fallbackUrl,
+      };
+    });
+
+    // -----------------------------------------
+    // 🔥 PAGINATION
+    // -----------------------------------------
     const pageNum = Number(page);
     const pageSize = Number(limit);
     const start = (pageNum - 1) * pageSize;
     const end = start + pageSize;
-    const paginatedPosts = data.posts.slice(start, end);
+
+    const paginated = normalizedPosts.slice(start, end);
 
     return NextResponse.json({
       count: data.count,
       page: pageNum,
       limit: pageSize,
       total_pages: Math.ceil(data.count / pageSize),
-      posts: paginatedPosts,
+      posts: paginated,
     });
   } catch (error) {
     console.error("Error fetching scraped posts:", error);
