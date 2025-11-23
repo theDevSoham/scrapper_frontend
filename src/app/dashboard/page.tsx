@@ -131,6 +131,15 @@ export default function Dashboard() {
             <Badge variant="secondary" className="text-slate-700">
               Logged in via {user.provider}
             </Badge>
+
+            <p
+              className="text-xs text-slate-500 mt-2"
+              onClick={() => {
+                navigator.clipboard.writeText(user.token);
+              }}
+            >
+              Token: {user.token.slice(0, 12)}...
+            </p>
           </div>
 
           <Separator />
