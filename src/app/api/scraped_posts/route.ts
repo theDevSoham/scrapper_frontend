@@ -21,7 +21,7 @@ interface Author {
 interface Media {
   type: string;
   url: string | null;
-  meta: Record<string, any>;
+  meta: Record<string, unknown>;
 }
 
 interface Metrics {
@@ -36,7 +36,7 @@ interface ProvenanceRaw {
   id: string;
   text: string | null;
   created_at: string | null;
-  public_metrics: Record<string, any>;
+  public_metrics: Record<string, unknown>;
   edit_history_tweet_ids: string[];
 }
 
@@ -48,7 +48,7 @@ interface Provenance {
 export interface ScrapedPost {
   canonical_hash: string;
   author: Author;
-  comments: any[];
+  comments: unknown[];
   content_text: string | null;
   created_at: string;
   fetched_at: string;
@@ -57,7 +57,7 @@ export interface ScrapedPost {
   post_id: string;
   provenance: Provenance;
   provider: string;
-  reactions: any[];
+  reactions: unknown[];
   schema_version: number;
   tags: string[];
   updated_at: string;

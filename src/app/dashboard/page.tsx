@@ -15,6 +15,7 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
+import Link from "next/link";
 
 interface UserInfo {
   token: string;
@@ -184,12 +185,12 @@ export default function Dashboard() {
             Please log in using Facebook or Twitter to access your dashboard.
           </p>
 
-          <a
+          <Link
             href="/"
             className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md transition"
           >
             Go to Login
-          </a>
+          </Link>
         </div>
       </main>
     );
@@ -230,7 +231,8 @@ export default function Dashboard() {
           {/* Action Buttons */}
           <div className="flex flex-col md:flex-row gap-4">
             {/* Dev-only button */}
-            {process.env.NODE_ENV !== "production" && (
+            {
+              // process.env.NODE_ENV !== "production" &&
               <Button
                 onClick={awakenAllServices}
                 className="flex-1 py-4 text-sm font-medium shadow-sm bg-yellow-500 hover:bg-yellow-600 text-white"
@@ -238,8 +240,9 @@ export default function Dashboard() {
               >
                 {loadingDev ? "Awakening..." : "Awaken All Services (Dev Only)"}
               </Button>
-            )}
-            {process.env.NODE_ENV !== "production" && (
+            }
+            {
+              // process.env.NODE_ENV !== "production" &&
               <Button
                 onClick={clearDBandCache}
                 className="flex-1 py-4 text-sm font-medium shadow-sm bg-yellow-700 hover:bg-yellow-800 text-white"
@@ -247,7 +250,7 @@ export default function Dashboard() {
               >
                 {loadingClear ? "Clearing..." : "Clear Data (Dev Only)"}
               </Button>
-            )}
+            }
             <Button
               onClick={() => getScrapedPosts(page)}
               className="flex-1 py-5 text-base font-medium shadow-sm bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
@@ -308,14 +311,14 @@ export default function Dashboard() {
                       </TableCell>
                       <TableCell>{post.provider}</TableCell>
                       <TableCell>
-                        <a
+                        <Link
                           href={post.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline"
                         >
                           Link
-                        </a>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
