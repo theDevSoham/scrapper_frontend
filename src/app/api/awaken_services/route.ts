@@ -10,6 +10,7 @@ const SERVICES = [
   `${process.env.AUTH_SERVICE}/health`,
   `${process.env.SCRAPPER_SERVICE}/health`,
   `${process.env.PARSER_SERVICE}/health`,
+  `${process.env.ANALYZER_SERVICE}/health`,
 ];
 
 export async function GET() {
