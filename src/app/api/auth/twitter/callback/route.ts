@@ -7,7 +7,10 @@ export async function GET(req: NextRequest) {
   const code_verifier = req.cookies.get("code_verifier")?.value;
 
   if (!code || !code_verifier) {
-    return NextResponse.json({ error: "Missing code or code_verifier" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing code or code_verifier" },
+      { status: 400 }
+    );
   }
 
   // Exchange authorization code for access token
@@ -37,8 +40,25 @@ export async function GET(req: NextRequest) {
   // data = { token_type, expires_in, access_token, scope, refresh_token }
   // Save tokens in DB or session here
 
+  // fetch user data
+  const userRes = await fetch(
+    `https://api.x.com/2/users/me?user.fields=id,name,username,confirmed_email`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${data.access_token}`,
+      },
+    }
+  );
+
+  const userData = await userRes.json();
+
   // Redirect to dashboard with token info
   const redirectUrl = new URL("/dashboard", req.url);
+
   redirectUrl.searchParams.set("token", data.access_token);
+  redirectUrl.searchParams.set("name", userData.data.name);
+  redirectUrl.searchParams.set("provider", "twitter");
+
   return NextResponse.redirect(redirectUrl);
 }
