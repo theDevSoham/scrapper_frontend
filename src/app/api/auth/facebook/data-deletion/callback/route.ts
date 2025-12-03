@@ -34,7 +34,9 @@ function decodeSignedRequest(signedRequest: string) {
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
+    console.log("form data: ", form);
     const signedRequest = form.get("signed_request") as string | null;
+    console.log("signedRequest: ", signedRequest);
 
     if (!signedRequest) {
       return NextResponse.json(
