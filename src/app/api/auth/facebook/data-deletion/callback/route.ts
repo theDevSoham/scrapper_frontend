@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 // Your Facebook App Secret
 const FACEBOOK_APP_SECRET =
-  process.env.FACEBOOK_APP_SECRET || "YOUR_APP_SECRET";
+  process.env.FACEBOOK_CLIENT_SECRET || "YOUR_APP_SECRET";
 
 const AUTH_SERVICE = process.env.AUTH_SERVICE || "";
 
