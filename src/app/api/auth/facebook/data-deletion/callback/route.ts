@@ -33,16 +33,17 @@ function decodeSignedRequest(signedRequest: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const form = await req.formData();
+    const signedRequest = form.get("signed_request") as string | null;
 
-    if (!body.signed_request) {
+    if (!signedRequest) {
       return NextResponse.json(
         { error: "Missing signed_request" },
         { status: 400 }
       );
     }
 
-    const data = decodeSignedRequest(body.signed_request);
+    const data = decodeSignedRequest(signedRequest);
     if (!data) {
       return NextResponse.json(
         { error: "Invalid signed_request" },
