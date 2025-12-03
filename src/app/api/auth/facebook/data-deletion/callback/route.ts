@@ -52,20 +52,25 @@ export async function POST(req: NextRequest) {
 
     const facebookUserId = data.user_id;
 
-    const resp = await fetch(
-      `${AUTH_SERVICE}/delete_user_by_id`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: facebookUserId,
-          provider: "facebook",
-          confirm: true,
-        }),
-      }
-    );
+    const resp = await fetch(`${AUTH_SERVICE}/delete_user_by_id`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: facebookUserId,
+        provider: "facebook",
+        confirm: true,
+      }),
+    });
+
+    const response_data = await resp.json();
+    if (!response_data?.cnf) {
+      return NextResponse.json(
+        { error: "Error receiving confirmation code" },
+        { status: 500 }
+      );
+    }
     // Example:
     // await db.user.delete({ where: { facebookId: facebookUserId } });
 
@@ -73,8 +78,8 @@ export async function POST(req: NextRequest) {
 
     // Response according to Facebook's requirements
     return NextResponse.json({
-      url: `${AUTH_SERVICE}/get_user`, // Optional: redirect page
-      confirmation_code: crypto.randomBytes(16).toString("hex"),
+      url: `${AUTH_SERVICE}/deletion_status?cnf_id=${response_data?.cnf}`, // Optional: redirect page
+      confirmation_code: response_data?.cnf,
     });
   } catch (err) {
     console.error(err);
